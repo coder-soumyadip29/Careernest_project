@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -53,7 +54,8 @@ export default function Navbar() {
         </nav>
 
         {/* Right Call To Action Button with subtle glow */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
           <a
             href="#login"
             className="hidden sm:inline-block text-[15px] font-semibold text-slate-700 hover:text-brand-secondary transition-colors duration-200"

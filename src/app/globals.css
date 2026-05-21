@@ -3,13 +3,45 @@
 @theme {
   --color-brand-primary: #1a1813;
   --color-brand-secondary: #f2c94c;
-  --color-brand-accent: #d99f25;
+  --color-brand-accent: #9062f8;
   --color-brand-light: #fff8e7;
-  --color-brand-card: rgba(255, 247, 221, 0.88);
-
+  --color-brand-card: rgba(255, 247, 221, 0.92);
+  --color-background: #fcf4d9;
+  --color-text: #1a1813;
+  --color-border: rgba(26, 24, 19, 0.08);
+  --bg-gradient-start: rgba(242, 201, 76, 0.22);
+  --bg-gradient-middle: rgba(150, 103, 251, 0.12);
+  --bg-gradient-end: rgba(26, 24, 19, 0.06);
   --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
-
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+html.light {
+  --color-brand-primary: #1a1813;
+  --color-brand-secondary: #f2c94c;
+  --color-brand-accent: #9062f8;
+  --color-brand-light: #fff8e7;
+  --color-brand-card: rgba(255, 247, 221, 0.92);
+  --color-background: #fcf4d9;
+  --color-text: #1a1813;
+  --color-border: rgba(26, 24, 19, 0.08);
+  --bg-gradient-start: rgba(242, 201, 76, 0.22);
+  --bg-gradient-middle: rgba(150, 103, 251, 0.12);
+  --bg-gradient-end: rgba(26, 24, 19, 0.06);
+}
+
+html.dark {
+  --color-brand-primary: #f8f8fb;
+  --color-brand-secondary: #f7d44f;
+  --color-brand-accent: #9d7dff;
+  --color-brand-light: #11101a;
+  --color-brand-card: rgba(15, 12, 28, 0.93);
+  --color-background: #09070f;
+  --color-text: #f8f8fb;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --bg-gradient-start: rgba(242, 201, 76, 0.16);
+  --bg-gradient-middle: rgba(150, 103, 251, 0.18);
+  --bg-gradient-end: rgba(0, 0, 0, 0.36);
 }
 
 @layer base {
@@ -19,13 +51,22 @@
 
   body {
     min-height: 100vh;
-    background-color: var(--color-brand-light);
+    background-color: var(--color-background);
     background-image:
-      radial-gradient(circle at top left, rgba(242, 201, 76, 0.18), transparent 30%),
-      radial-gradient(circle at 80% 15%, rgba(217, 159, 37, 0.12), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(26, 24, 19, 0.05), transparent 42%);
-    color: var(--color-brand-primary);
+      radial-gradient(circle at top left, var(--bg-gradient-start), transparent 26%),
+      radial-gradient(circle at top right, var(--bg-gradient-middle), transparent 24%),
+      radial-gradient(circle at bottom left, var(--bg-gradient-end), transparent 32%);
+    color: var(--color-text);
     overflow-x: hidden;
+  }
+
+  body::selection {
+    background-color: var(--color-brand-secondary);
+    color: #111;
+  }
+
+  .bg-brand-light {
+    background-color: var(--color-brand-light);
   }
 }
 
@@ -34,12 +75,12 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.12);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(255, 247, 221, 0.36);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(255, 247, 221, 0.55);
 }
