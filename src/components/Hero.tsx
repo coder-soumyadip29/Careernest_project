@@ -5,132 +5,97 @@ import LiveScene from '@/components/LiveScene';
 
 export default function Hero() {
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: 24 },
     visible: {
       opacity: 1,
+      y: 0,
       transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
+        staggerChildren: 0.16,
+        delayChildren: 0.15,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 25, opacity: 0 },
+    hidden: { y: 28, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
         duration: 0.8,
-        ease: [0.215, 0.61, 0.355, 1],
+        ease: [0.22, 1, 0.36, 1],
       },
     },
   };
 
-  const cardHoverVariants = {
-    hover: {
-      y: -6,
-      boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.08)',
-      borderColor: 'rgba(37, 99, 235, 0.25)',
-      transition: { duration: 0.3, ease: 'easeOut' },
-    },
-  };
-
   return (
-    <section className="relative min-h-screen pt-32 pb-20 flex items-center overflow-hidden bg-brand-light">
-      {/* Top Right Ambient Glow Spot */}
-      <div className="absolute top-0 right-0 w-[45vw] h-[45vw] rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-secondary/12 to-transparent filter blur-3xl -z-10 pointer-events-none" />
-      {/* Bottom Left Subtle Warm Spot */}
-      <div className="absolute -bottom-20 -left-20 w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent/8 to-transparent filter blur-3xl -z-10 pointer-events-none" />
-
-      {/* Grid Pattern Mesh */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35 -z-10" />
-
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 w-full">
+    <section id="home" className="relative min-h-screen overflow-hidden bg-brand-light">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(242,201,76,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(217,159,37,0.12),transparent_30%)] pointer-events-none" />
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 pt-28 pb-20">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
+          className="grid gap-12 xl:grid-cols-[1.1fr_0.9fr] items-center"
         >
-          {/* Left Column: Text & CTAs */}
-          <div className="lg:col-span-7 text-left space-y-8">
-            {/* Promo Pill */}
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-secondary/10 border border-brand-secondary/15">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-secondary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-secondary"></span>
-              </span>
-              <span className="text-[12px] font-bold text-brand-secondary uppercase tracking-widest">
-                Trusted by 500+ Top Corporates & Universities
+          <div className="space-y-8">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-3 rounded-full border border-brand-secondary/20 bg-white/90 px-4 py-2 shadow-sm shadow-brand-secondary/10 backdrop-blur-sm w-fit">
+              <span className="text-[11px] uppercase tracking-[0.35em] font-semibold text-brand-secondary">
+                Premium 3D Launch
               </span>
             </motion.div>
 
-            {/* Main Headline */}
-            <motion.h2
+            <motion.h1
               variants={itemVariants}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-primary tracking-tight leading-[1.1]"
+              className="max-w-3xl text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-brand-primary leading-tight"
             >
-              Bridge the Gap Between <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-brand-secondary to-brand-accent bg-clip-text text-transparent">
-                Ambitious Talents
-              </span> <br />
-              and Leading Companies.
-            </motion.h2>
+              CarrierNest arrives as a clean <span className="bg-gradient-to-r from-brand-secondary to-brand-accent bg-clip-text text-transparent">3D live launch</span> with polished motion and fresh UX clarity.
+            </motion.h1>
 
-            {/* Paragraph Sub-headline */}
-            <motion.p
-              variants={itemVariants}
-              className="text-slate-600 text-lg sm:text-xl font-normal leading-relaxed max-w-xl"
-            >
-              CarrierNest is the premium ecosystem offering hands-on internship opportunities, real-world professional grooming, and direct fast-track pathways to top corporate roles.
+            <motion.p variants={itemVariants} className="max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+              A professional landing experience that opens with a focused 3D nest reveal, clear page structure, and breathing space for every interaction.
             </motion.p>
 
-            {/* Action Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-4 items-center">
-              <motion.a
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                href="#talents"
-                className="px-8 py-4 rounded-2xl text-white font-bold bg-brand-primary shadow-xl shadow-brand-primary/15 flex items-center gap-2 group"
+            <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4">
+              <a
+                href="#get-started"
+                className="inline-flex items-center justify-center rounded-2xl bg-brand-primary px-8 py-4 text-sm font-semibold text-white shadow-[0_18px_50px_rgba(37,99,235,0.16)] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                Hire Talent
-                <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </motion.a>
-
-              <motion.a
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                href="#opportunities"
-                className="px-8 py-4 rounded-2xl text-brand-secondary font-bold bg-white border-2 border-slate-200/80 shadow-md shadow-slate-100 hover:border-brand-secondary/30 transition-all duration-200"
+                Explore CarrierNest
+              </a>
+              <a
+                href="#solutions"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-8 py-4 text-sm font-semibold text-brand-primary transition-colors duration-200 hover:bg-slate-50"
               >
-                Find Internships
-              </motion.a>
+                See the Flow
+              </a>
             </motion.div>
 
-            {/* Embedded Live Metrics Counter Grid */}
-            <motion.div variants={itemVariants} className="pt-4 grid grid-cols-3 gap-6 max-w-md">
-              <div>
-                <h4 className="text-3xl font-extrabold text-brand-primary">15k+</h4>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Students Placed</p>
+            <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200 border border-slate-200/60">
+                <p className="text-3xl font-extrabold text-brand-primary">15k+</p>
+                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-slate-500">Students Placed</p>
               </div>
-              <div className="border-l border-slate-200 pl-6">
-                <h4 className="text-3xl font-extrabold text-brand-primary">96%</h4>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Retention Rate</p>
+              <div className="rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200 border border-slate-200/60">
+                <p className="text-3xl font-extrabold text-brand-primary">96%</p>
+                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-slate-500">Retention Rate</p>
               </div>
-              <div className="border-l border-slate-200 pl-6">
-                <h4 className="text-3xl font-extrabold text-brand-primary">200+</h4>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Partner Brands</p>
+              <div className="rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200 border border-slate-200/60">
+                <p className="text-3xl font-extrabold text-brand-primary">200+</p>
+                <p className="mt-3 text-sm uppercase tracking-[0.28em] text-slate-500">Partner Brands</p>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Column: 3D Live Stage */}
-          <div className="lg:col-span-5 relative h-[660px] w-full flex items-center justify-center">
-            <LiveScene />
-          </div>
+          <motion.div
+            variants={itemVariants}
+            className="relative rounded-[2.5rem] border border-white/10 bg-slate-950/95 p-6 shadow-[0_30px_110px_rgba(15,23,42,0.28)]"
+          >
+            <div className="absolute inset-0 rounded-[2.5rem] bg-[radial-gradient(circle_at_center,_rgba(255,229,153,0.12),transparent_40%)] pointer-events-none" />
+            <div className="relative h-[520px] sm:h-[580px] md:h-[620px] overflow-hidden rounded-[2rem]">
+              <LiveScene />
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

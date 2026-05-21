@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #0f172a;
-  --color-brand-secondary: #2563eb;
-  --color-brand-accent: #06b6d4;
-  --color-brand-light: #f8fafc;
-  --color-brand-card: rgba(255, 255, 255, 0.85);
+  --color-brand-primary: #1a1813;
+  --color-brand-secondary: #f2c94c;
+  --color-brand-accent: #d99f25;
+  --color-brand-light: #fff8e7;
+  --color-brand-card: rgba(255, 247, 221, 0.88);
 
   --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
 
@@ -20,9 +20,10 @@
   body {
     min-height: 100vh;
     background-color: var(--color-brand-light);
-    background-image: radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 35%),
-      radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.09), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.06), transparent 32%);
+    background-image:
+      radial-gradient(circle at top left, rgba(242, 201, 76, 0.18), transparent 30%),
+      radial-gradient(circle at 80% 15%, rgba(217, 159, 37, 0.12), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(26, 24, 19, 0.05), transparent 42%);
     color: var(--color-brand-primary);
     overflow-x: hidden;
   }
