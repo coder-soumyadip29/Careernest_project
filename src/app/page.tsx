@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import OpeningPage from '@/components/OpeningPage';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
+import CinematicScroll from '@/components/CinematicScroll';
 
 export default function Page() {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -27,6 +28,7 @@ export default function Page() {
           <Navbar />
           <main className="flex-grow">
             <Hero />
+            <CinematicScroll />
           </main>
         </motion.div>
       )}
