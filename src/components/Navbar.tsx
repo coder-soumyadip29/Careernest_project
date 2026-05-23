@@ -48,7 +48,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-            <Image src="/careernest-logo.svg" alt="CarrierNest" width={36} height={36} className="rounded-md object-contain" />
+            <Image src="/careernest-logo12.png" alt="CarrierNest" width={36} height={36} className="rounded-md object-contain" />
           </div>
           <span className="font-extrabold text-xl tracking-tight text-brand-primary group-hover:text-brand-secondary transition-colors duration-200">
             CarrierNest
