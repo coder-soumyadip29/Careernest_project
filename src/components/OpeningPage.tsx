@@ -11,23 +11,23 @@ export default function OpeningPage({ onComplete }: OpeningPageProps) {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    // Set a timer to finish preloading sequence
+    // Reduced to 800ms for near-instant first impression
     const timer = setTimeout(() => {
       setIsDone(true);
-      setTimeout(onComplete, 800); // Allow exit transition to complete
-    }, 2800);
+      setTimeout(onComplete, 400); // Quick exit transition
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   const letterVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: {
-        delay: i * 0.08,
-        duration: 0.8,
+        delay: i * 0.04,
+        duration: 0.4,
         ease: [0.215, 0.61, 0.355, 1],
       },
     }),

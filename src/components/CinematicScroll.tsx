@@ -68,48 +68,12 @@ export default function CinematicScroll() {
 
   // 2. Preload Sequence or Initialize Generative Engine
   useEffect(() => {
-    let loadedCount = 0;
-    let failedCount = 0;
     const preloadedImages: HTMLImageElement[] = [];
 
-    // Attempt to load standard sequence frames
-    const loadSequence = async () => {
-      const promises = Array.from({ length: totalFrames }).map((_, i) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          // Match standard zero-padding: frame_001.webp -> frame_100.webp
-          const frameNum = String(i + 1).padStart(3, '0');
-          img.src = `/assets/sequence/frame_${frameNum}.webp`;
+    // Fast probe: test a single frame first to decide whether sequence exists
+    const probe = new Image();
+    probe.src = '/assets/sequence/frame_001.webp';
 
-          img.onload = () => {
-            preloadedImages[i] = img;
-            loadedCount++;
-            setLoadingProgress(Math.round((loadedCount / totalFrames) * 100));
-            resolve();
-          };
-
-          img.onerror = () => {
-            failedCount++;
-            resolve();
-          };
-        });
-      });
-
-      await Promise.all(promises);
-
-      // If more than 10% of frames fail to load, switch to high-performance generative fallback
-      if (failedCount > 10) {
-        console.warn(`Could not load sequence files (${failedCount} failed). Initializing premium generative 3D engine fallback.`);
-        initGenerativeEngine();
-        setIsUsingFallback(true);
-        setIsLoaded(true);
-      } else {
-        images.current = preloadedImages;
-        setIsLoaded(true);
-      }
-    };
-
-    // Initialize custom mathematical 3D node network for the fallback mode
     const initGenerativeEngine = () => {
       const tempNodes: Node3D[] = [];
       const tempConnections: Connection[] = [];
@@ -181,7 +145,55 @@ export default function CinematicScroll() {
       stars.current = tempStars;
     };
 
-    loadSequence();
+    const loadSequence = async () => {
+      let loadedCount = 0;
+      let failedCount = 0;
+
+      const promises = Array.from({ length: totalFrames }).map((_, i) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          const frameNum = String(i + 1).padStart(3, '0');
+          img.src = `/assets/sequence/frame_${frameNum}.webp`;
+
+          img.onload = () => {
+            preloadedImages[i] = img;
+            loadedCount++;
+            setLoadingProgress(Math.round((loadedCount / totalFrames) * 100));
+            resolve();
+          };
+
+          img.onerror = () => {
+            failedCount++;
+            resolve();
+          };
+        });
+      });
+
+      await Promise.all(promises);
+
+      if (failedCount > 10) {
+        console.warn(`Could not load sequence files (${failedCount} failed). Initializing premium generative 3D engine fallback.`);
+        initGenerativeEngine();
+        setIsUsingFallback(true);
+        setIsLoaded(true);
+      } else {
+        images.current = preloadedImages;
+        setIsLoaded(true);
+      }
+    };
+
+    // Probe result: if first frame fails quickly, skip all 100 loads
+    probe.onload = () => {
+      // Sequence exists — load all frames
+      loadSequence();
+    };
+
+    probe.onerror = () => {
+      // Sequence missing — instantly go to generative fallback, no waiting
+      initGenerativeEngine();
+      setIsUsingFallback(true);
+      setIsLoaded(true);
+    };
 
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -297,7 +309,7 @@ export default function CinematicScroll() {
 
       // Color scheme resolved from CSS properties
       const colorAccent = isDark ? '#38bdf8' : '#0ea5e9';     // Sleek Light Blue
-      const colorSecondary = isDark ? '#fbbf24' : '#e5b82c';  // Elegant Gold/Off-Yellow
+      const colorSecondary = isDark ? '#a78bfa' : '#8b5cf6';  // Elegant Violet/Purple (instead of gold)
       const textPrimary = isDark ? 'rgba(248, 250, 252, 0.9)' : 'rgba(15, 23, 42, 0.9)';
 
       // Camera transitions mapped directly to scrolling progress
@@ -319,11 +331,11 @@ export default function CinematicScroll() {
       );
       if (isDark) {
         radialGrad.addColorStop(0, 'rgba(56, 189, 248, 0.22)');    // Glowing Light Blue
-        radialGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.08)');  // Faint Off-Yellow
-        radialGrad.addColorStop(1, 'rgba(11, 19, 41, 0.0)');
+        radialGrad.addColorStop(0.5, 'rgba(167, 139, 250, 0.12)');  // Rich Purple/Violet Glow
+        radialGrad.addColorStop(1, 'rgba(5, 3, 15, 0.0)');         // Matches Deep Cosmic Space #05030f
       } else {
-        radialGrad.addColorStop(0, 'rgba(254, 249, 195, 0.45)');   // Creamy Off-Yellow
-        radialGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.25)');  // Light Blue Blend
+        radialGrad.addColorStop(0, 'rgba(240, 249, 255, 0.45)');   // Light Blue Glow
+        radialGrad.addColorStop(0.5, 'rgba(167, 139, 250, 0.25)');  // Light Violet/Purple Blend
         radialGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
       }
       ctx.fillStyle = radialGrad;
@@ -553,14 +565,14 @@ export default function CinematicScroll() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -45 }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/95 dark:border-slate-600/50 dark:shadow-black/30"
+                  className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-indigo-50/95 border border-sky-100 shadow-xl shadow-indigo-900/5 backdrop-blur-xl pointer-events-auto dark:from-[#0d0b1e]/95 dark:via-[#0c0a1d]/90 dark:to-[#05030f]/95 dark:border-indigo-500/20 dark:shadow-indigo-950/20"
                 >
                   <div className="inline-flex items-center gap-3 rounded-full border border-sky-200 bg-sky-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-sky-800 dark:border-sky-500/40 dark:bg-sky-950/60 dark:text-sky-200">
                     01 / INTELLIGENT MATCHING
                   </div>
                   <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-none">
                     Smart <br />
-                    <span className="bg-gradient-to-r from-sky-600 to-amber-600 bg-clip-text text-transparent dark:from-sky-300 dark:to-amber-300">Talent Matching</span>
+                    <span className="bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-300 dark:to-violet-400">Talent Matching</span>
                   </h2>
                   <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans font-medium">
                     CarrierNest algorithms analyze skills, availability, and role fit in real time—connecting interns and graduates with teams that need them most.
@@ -582,14 +594,14 @@ export default function CinematicScroll() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -45 }}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/95 dark:border-slate-600/50 dark:shadow-black/30"
+                    className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-indigo-50/95 border border-sky-100 shadow-xl shadow-indigo-900/5 backdrop-blur-xl pointer-events-auto dark:from-[#0d0b1e]/95 dark:via-[#0c0a1d]/90 dark:to-[#05030f]/95 dark:border-indigo-500/20 dark:shadow-indigo-950/20"
                   >
-                    <div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/60 dark:text-amber-200">
+                    <div className="inline-flex items-center gap-3 rounded-full border border-violet-200 bg-violet-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-violet-800 dark:border-violet-500/40 dark:bg-violet-950/60 dark:text-violet-200">
                       02 / SECURED PIPELINES
                     </div>
                     <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-none">
                       Secure <br />
-                      <span className="bg-gradient-to-r from-amber-600 to-sky-600 bg-clip-text text-transparent dark:from-amber-300 dark:to-sky-300">Hiring Workflows</span>
+                      <span className="bg-gradient-to-r from-violet-600 to-sky-600 bg-clip-text text-transparent dark:from-violet-300 dark:to-sky-300">Hiring Workflows</span>
                     </h2>
                     <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans font-medium">
                       Enterprise-grade security protects candidate data, employer records, and placement pipelines—so every stakeholder hires with confidence.

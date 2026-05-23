@@ -41,7 +41,7 @@ export default function Navbar() {
       transition={{ delay: 0.2, duration: 0.8, ease: 'easeOut' }}
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${
         scrolled || mobileOpen
-          ? 'py-3 bg-white/75 dark:bg-slate-950/75 backdrop-blur-lg border-b border-slate-200/50 dark:border-white/10 shadow-sm'
+          ? 'py-3 bg-white/75 dark:bg-[#05030f]/75 backdrop-blur-lg border-b border-slate-200/50 dark:border-white/10 shadow-sm'
           : 'py-5 bg-transparent'
       }`}
     >
@@ -131,7 +131,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-t border-slate-200/50 dark:border-white/10 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg"
+            className="lg:hidden border-t border-slate-200/50 dark:border-white/10 bg-white/95 dark:bg-[#05030f]/95 backdrop-blur-lg"
           >
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-3">
               {navLinks.map((link) => (

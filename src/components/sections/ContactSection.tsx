@@ -24,9 +24,9 @@ export default function ContactSection() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="flex gap-4 rounded-2xl border border-slate-200/80 bg-white/80 p-5 dark:border-slate-600/50 dark:bg-slate-900/80"
+                className="flex gap-4 rounded-2xl border border-slate-200/80 bg-white/80 p-5 dark:border-indigo-500/15 dark:bg-[#0c0a1a]/85"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white dark:bg-sky-400 dark:text-slate-900">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white dark:bg-gradient-to-br dark:from-sky-400 dark:to-violet-400 dark:text-slate-950">
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
@@ -41,7 +41,7 @@ export default function ContactSection() {
                 </div>
               </div>
             ))}
-            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 shadow-md dark:border-slate-600/50">
+            <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 shadow-md dark:border-indigo-500/15">
               <iframe
                 title="CarrierNest office location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.107469986123!2d77.36!3d28.62!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM3JzEyLjAiTiA3N8KwMjEnMzYuMCJF!5e0!3m2!1sen!2sin!4v1"

@@ -23,7 +23,7 @@ export default function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08, duration: 0.55 }}
-              className="rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-8 shadow-md dark:border-slate-600/50 dark:bg-slate-900/90"
+              className="rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-8 shadow-md dark:border-indigo-500/15 dark:bg-[#0c0a1a]/90"
             >
               <div className="flex gap-1">
                 {Array.from({ length: item.rating }).map((_, i) => (

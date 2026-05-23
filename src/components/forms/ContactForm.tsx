@@ -53,7 +53,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-6 sm:p-8 shadow-lg dark:border-slate-600/50 dark:bg-slate-900/90 ${compact ? '' : 'lg:p-10'}`}
+      className={`rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-6 sm:p-8 shadow-lg dark:border-indigo-500/20 dark:bg-[#0c0a1a]/95 ${compact ? '' : 'lg:p-10'}`}
     >
       <div className={`grid gap-5 ${compact ? '' : 'sm:grid-cols-2'}`}>
         <FormField label="Full Name" id="contact-name" error={errors.name}>
@@ -93,7 +93,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="mt-6 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-brand-primary px-8 py-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-60 dark:bg-white dark:text-slate-900"
+        className="mt-6 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-brand-primary px-8 py-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-60 dark:bg-gradient-to-r dark:from-brand-secondary dark:to-brand-accent dark:text-slate-950 dark:hover:opacity-90"
       >
         <Send className="h-4 w-4" />
         {submitting ? 'Sending...' : 'Submit Inquiry'}
