@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-primary: #0f172a;
   --color-brand-secondary: #e5b82c;
@@ -24,6 +26,9 @@ html.light {
   --color-brand-card: rgba(254, 249, 195, 0.95);
   --color-background: #f8fafc;
   --color-text: #1e293b;
+  --color-text-muted: #475569;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f8fafc;
   --color-border: rgba(15, 23, 42, 0.08);
   --bg-gradient-start: rgba(56, 189, 248, 0.22);
   --bg-gradient-middle: rgba(253, 224, 71, 0.22);
@@ -33,12 +38,15 @@ html.light {
 html.dark {
   --color-brand-primary: #f8fafc;
   --color-brand-secondary: #38bdf8;
-  --color-brand-accent: #e5b82c;
+  --color-brand-accent: #fbbf24;
   --color-brand-light: #0b1329;
-  --color-brand-card: rgba(254, 249, 195, 0.95);
+  --color-brand-card: rgba(30, 41, 59, 0.92);
   --color-background: #0b1329;
   --color-text: #f1f5f9;
-  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text-muted: #94a3b8;
+  --color-surface: #111827;
+  --color-surface-elevated: #1e293b;
+  --color-border: rgba(255, 255, 255, 0.12);
   --bg-gradient-start: rgba(56, 189, 248, 0.16);
   --bg-gradient-middle: rgba(253, 224, 71, 0.16);
   --bg-gradient-end: rgba(0, 0, 0, 0.4);
@@ -62,11 +70,19 @@ html.dark {
 
   body::selection {
     background-color: var(--color-brand-secondary);
-    color: #111;
+    color: #0f172a;
+  }
+
+  html.dark body::selection {
+    color: #0f172a;
   }
 
   .bg-brand-light {
     background-color: var(--color-brand-light);
+  }
+
+  .text-muted {
+    color: var(--color-text-muted);
   }
 }
 
@@ -79,11 +95,23 @@ html.dark {
   background: rgba(255, 255, 255, 0.12);
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 247, 221, 0.36);
   border-radius: 4px;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.45);
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(206, 160, 7, 0.766);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
 }

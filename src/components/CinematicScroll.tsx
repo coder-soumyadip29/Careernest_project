@@ -553,17 +553,17 @@ export default function CinematicScroll() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -45 }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto"
+                  className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/95 dark:border-slate-600/50 dark:shadow-black/30"
                 >
-                  <div className="inline-flex items-center gap-3 rounded-full border border-sky-200 bg-sky-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-sky-800">
+                  <div className="inline-flex items-center gap-3 rounded-full border border-sky-200 bg-sky-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-sky-800 dark:border-sky-500/40 dark:bg-sky-950/60 dark:text-sky-200">
                     01 / INTELLIGENT MATCHING
                   </div>
-                  <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-none">
-                    Modern <br />
-                    <span className="bg-gradient-to-r from-sky-600 to-amber-600 bg-clip-text text-transparent">Solutions</span>
+                  <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-none">
+                    Smart <br />
+                    <span className="bg-gradient-to-r from-sky-600 to-amber-600 bg-clip-text text-transparent dark:from-sky-300 dark:to-amber-300">Talent Matching</span>
                   </h2>
-                  <p className="text-lg text-slate-700 leading-relaxed font-sans font-medium">
-                    Our dynamic algorithms process complex hiring matrices in real-time, connecting top candidates with high-growth teams instantly. Experience hyper-speed workflow optimization.
+                  <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans font-medium">
+                    CarrierNest algorithms analyze skills, availability, and role fit in real time—connecting interns and graduates with teams that need them most.
                   </p>
                 </motion.div>
               )}
@@ -582,17 +582,17 @@ export default function CinematicScroll() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -45 }}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto"
+                    className="space-y-6 max-w-xl p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/95 via-white/80 to-amber-50/95 border border-sky-100 shadow-xl shadow-sky-900/5 backdrop-blur-xl pointer-events-auto dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/95 dark:border-slate-600/50 dark:shadow-black/30"
                   >
-                    <div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-amber-800">
+                    <div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-100/50 px-4 py-1 text-[11px] uppercase tracking-[0.35em] font-semibold text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/60 dark:text-amber-200">
                       02 / SECURED PIPELINES
                     </div>
-                    <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-none">
+                    <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-none">
                       Secure <br />
-                      <span className="bg-gradient-to-r from-amber-600 to-sky-600 bg-clip-text text-transparent">Architecture</span>
+                      <span className="bg-gradient-to-r from-amber-600 to-sky-600 bg-clip-text text-transparent dark:from-amber-300 dark:to-sky-300">Hiring Workflows</span>
                     </h2>
-                    <p className="text-lg text-slate-700 leading-relaxed font-sans font-medium">
-                      Built upon industry-leading encryption and robust security guidelines. We protect intellectual property and user privacy, establishing a safe launchpad for professional growth.
+                    <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans font-medium">
+                      Enterprise-grade security protects candidate data, employer records, and placement pipelines—so every stakeholder hires with confidence.
                     </p>
                   </motion.div>
                 )}

@@ -40,10 +40,10 @@ export default function OpeningPage({ onComplete }: OpeningPageProps) {
       initial={{ opacity: 1 }}
       animate={{ opacity: isDone ? 0 : 1 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-brand-primary"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950"
     >
       {/* Wave decorative background in preloader */}
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-secondary via-brand-primary to-brand-primary" />
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-sky-400 via-slate-950 to-slate-950" />
 
       <div className="text-center relative z-10 flex flex-col items-center">
         {/* Modern animated nest icon */}
@@ -84,9 +84,9 @@ export default function OpeningPage({ onComplete }: OpeningPageProps) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 0.7, y: 0 }}
           transition={{ delay: 1.2, duration: 0.8 }}
-          className="text-brand-light text-sm tracking-widest uppercase font-medium"
+          className="text-slate-300 text-sm tracking-widest uppercase font-medium"
         >
-          Nurturing Professional Growth
+          HR Tech & Talent Placement Platform
         </motion.p>
       </div>
 
@@ -95,7 +95,7 @@ export default function OpeningPage({ onComplete }: OpeningPageProps) {
         initial={{ y: "100%" }}
         animate={{ y: isDone ? "-100%" : "100%" }}
         transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-        className="absolute inset-0 bg-brand-secondary z-20"
+        className="absolute inset-0 bg-sky-400 z-20"
       />
     </motion.div>
   );

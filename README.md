@@ -36,6 +36,29 @@ npm run dev
 
 Open `http://localhost:3000` in your browser.
 
+## Site Map (Internship Frontend)
+
+| Page | Route |
+|------|-------|
+| Landing (Hero, About, Services, Testimonials, Contact) | `/` |
+| Services (detailed) | `/services` |
+| Contact | `/contact` |
+| Sign Up | `/signup` |
+| Login | `/login` |
+| User Dashboard | `/dashboard` |
+| User Profile | `/dashboard/profile` |
+| Admin Dashboard | `/admin` |
+| Manage Users | `/admin/users` |
+| Manage Inquiries | `/admin/inquiries` |
+| Manage Services/Content | `/admin/content` |
+
+### Demo accounts (localStorage mock auth)
+
+- **Admin:** `admin@carriernest.com` / `Admin@123`
+- **User:** `demo@carriernest.com` / `Demo@123`
+
+> Frontend uses localStorage for auth, inquiries, and service CRUD until the Node.js/MongoDB backend is connected.
+
 ## Build
 
 ```bash
