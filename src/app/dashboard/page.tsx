@@ -13,7 +13,7 @@ export default function UserDashboardPage() {
 
   useEffect(() => {
     const all = getInquiries();
-    setInquiryCount(all.filter((i) => i.userId === user?.id || i.email === user?.email).length);
+    setInquiryCount(all.filter((i) => i.userId === user?.uid || i.email === user?.email).length);
   }, [user]);
 
   return (

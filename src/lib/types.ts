@@ -1,14 +1,25 @@
 export type UserRole = 'user' | 'admin';
 
-export interface User {
-  id: string;
+/**
+ * UserProfile represents the Firestore document shape in the 'Users' collection.
+ * Keyed by Firebase Auth UID.
+ */
+export interface UserProfile {
+  uid: string;
   name: string;
   email: string;
-  password: string;
   role: UserRole;
   createdAt: string;
-  avatar?: string;
+  photoURL: string;
+  phone: string;
+  department: string;
 }
+
+/**
+ * Backward-compatible alias — some UI components reference `User`.
+ * Points to the same type so we don't need to rename everywhere at once.
+ */
+export type User = UserProfile;
 
 export interface Inquiry {
   id: string;
@@ -30,9 +41,4 @@ export interface ServiceItem {
   price: string;
   features: string[];
   icon: string;
-}
-
-export interface AuthSession {
-  userId: string;
-  token: string;
 }

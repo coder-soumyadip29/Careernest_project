@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const { user, updateProfile, changePassword } = useAuth();
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
-  const [avatar, setAvatar] = useState(user?.avatar ?? '');
+  const [avatar, setAvatar] = useState(user?.photoURL ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -21,7 +21,7 @@ export default function ProfilePage() {
     if (user) {
       setName(user.name);
       setEmail(user.email);
-      setAvatar(user.avatar ?? '');
+      setAvatar(user.photoURL ?? '');
     }
   }, [user]);
 
@@ -29,7 +29,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setMessage('');
     setError('');
-    const result = await updateProfile({ name, email, avatar });
+    const result = await updateProfile({ name, photoURL: avatar });
     if (result.ok) setMessage('Profile updated successfully.');
     else setError(result.error ?? 'Update failed.');
   };
@@ -91,7 +91,9 @@ export default function ProfilePage() {
             <input id="profile-name" className={inputClassName} value={name} onChange={(e) => setName(e.target.value)} />
           </FormField>
           <FormField label="Email" id="profile-email">
-            <input id="profile-email" type="email" className={inputClassName} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input id="profile-email" type="email" className={inputClassName} value={email} disabled
+              title="Email cannot be changed from here"
+            />
           </FormField>
           <button type="submit" className="rounded-2xl bg-brand-primary px-6 py-3 text-sm font-semibold text-white dark:bg-white dark:text-slate-900">
             Save Profile

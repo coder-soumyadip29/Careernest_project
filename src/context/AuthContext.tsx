@@ -8,121 +8,192 @@ import {
   useMemo,
   useState,
 } from 'react';
-import type { Inquiry, User } from '@/lib/types';
 import {
-  generateId,
-  generateToken,
-  getInquiries,
-  getSession,
-  getUsers,
-  saveInquiries,
-  saveUsers,
-  seedDatabase,
-  setSession,
-} from '@/lib/storage';
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendEmailVerification,
+  updateProfile as firebaseUpdateProfile,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  type User as FirebaseUser,
+} from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { createUserProfile, getUserProfile, updateUserProfile } from '@/lib/firestore';
+import type { Inquiry, UserProfile } from '@/lib/types';
+import { getInquiries, saveInquiries, generateId, seedDatabase } from '@/lib/storage';
 
 interface AuthContextValue {
-  user: User | null;
+  /** The Firestore user profile (null if logged out or loading) */
+  user: UserProfile | null;
+  /** The raw Firebase Auth user (needed for emailVerified etc.) */
+  firebaseUser: FirebaseUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; role?: User['role'] }>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; role?: UserProfile['role']; emailVerified?: boolean }>;
   register: (
     name: string,
     email: string,
     password: string
   ) => Promise<{ ok: boolean; error?: string }>;
-  logout: () => void;
-  updateProfile: (data: Partial<Pick<User, 'name' | 'email' | 'avatar'>>) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateProfile: (data: Partial<Pick<UserProfile, 'name' | 'email' | 'photoURL'>>) => Promise<{ ok: boolean; error?: string }>;
   changePassword: (current: string, next: string) => Promise<{ ok: boolean; error?: string }>;
   submitInquiry: (data: Omit<Inquiry, 'id' | 'timestamp' | 'status'>) => Promise<{ ok: boolean }>;
-  refreshUser: () => void;
+  resendVerification: () => Promise<{ ok: boolean; error?: string }>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshUser = useCallback(() => {
-    const session = getSession();
-    if (!session) {
-      setUser(null);
-      return;
-    }
-    const found = getUsers().find((u) => u.id === session.userId) ?? null;
-    setUser(found);
-  }, []);
-
+  // Seed non-auth localStorage data
   useEffect(() => {
     seedDatabase();
-    refreshUser();
-    setLoading(false);
-  }, [refreshUser]);
+  }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const users = getUsers();
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!found || found.password !== password) {
-      return { ok: false, error: 'Invalid email or password.' };
+  // Listen to Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        setFirebaseUser(fbUser);
+        // Fetch Firestore profile
+        try {
+          const profile = await getUserProfile(fbUser.uid);
+          setUser(profile);
+        } catch {
+          setUser(null);
+        }
+      } else {
+        setFirebaseUser(null);
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const fbUser = auth.currentUser;
+    if (!fbUser) {
+      setUser(null);
+      setFirebaseUser(null);
+      return;
     }
-    setSession({ userId: found.id, token: generateToken() });
-    setUser(found);
-    return { ok: true, role: found.role };
+    await fbUser.reload();
+    setFirebaseUser({ ...fbUser });
+    const profile = await getUserProfile(fbUser.uid);
+    setUser(profile);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
-    const users = getUsers();
-    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-      return { ok: false, error: 'An account with this email already exists.' };
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const fbUser = credential.user;
+
+      // Set display name on Firebase Auth profile
+      await firebaseUpdateProfile(fbUser, { displayName: name });
+
+      // Send email verification
+      await sendEmailVerification(fbUser);
+
+      // Create Firestore user profile
+      await createUserProfile(fbUser.uid, {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        role: 'user',
+      });
+
+      // Fetch and set the profile
+      const profile = await getUserProfile(fbUser.uid);
+      setUser(profile);
+      setFirebaseUser(fbUser);
+
+      return { ok: true };
+    } catch (err: any) {
+      const code = err?.code ?? '';
+      // Import dynamically to keep this callback lean
+      const { getFirebaseErrorMessage } = await import('@/lib/validations');
+      return { ok: false, error: getFirebaseErrorMessage(code) };
     }
-    const newUser: User = {
-      id: generateId('user'),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-      role: 'user',
-      createdAt: new Date().toISOString(),
-    };
-    saveUsers([...users, newUser]);
-    setSession({ userId: newUser.id, token: generateToken() });
-    setUser(newUser);
-    return { ok: true };
   }, []);
 
-  const logout = useCallback(() => {
-    setSession(null);
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const fbUser = credential.user;
+      setFirebaseUser(fbUser);
+
+      // Fetch Firestore profile to get role
+      const profile = await getUserProfile(fbUser.uid);
+      setUser(profile);
+
+      return {
+        ok: true,
+        role: profile?.role,
+        emailVerified: fbUser.emailVerified,
+      };
+    } catch (err: any) {
+      const code = err?.code ?? '';
+      const { getFirebaseErrorMessage } = await import('@/lib/validations');
+      return { ok: false, error: getFirebaseErrorMessage(code) };
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    await signOut(auth);
     setUser(null);
+    setFirebaseUser(null);
   }, []);
 
   const updateProfile = useCallback(
-    async (data: Partial<Pick<User, 'name' | 'email' | 'avatar'>>) => {
-      if (!user) return { ok: false, error: 'Not authenticated.' };
-      const users = getUsers();
-      if (data.email && users.some((u) => u.id !== user.id && u.email === data.email.toLowerCase())) {
-        return { ok: false, error: 'Email is already in use.' };
+    async (data: Partial<Pick<UserProfile, 'name' | 'email' | 'photoURL'>>) => {
+      if (!firebaseUser || !user) return { ok: false, error: 'Not authenticated.' };
+      try {
+        // Update Firebase Auth display name if name changed
+        if (data.name) {
+          await firebaseUpdateProfile(firebaseUser, { displayName: data.name });
+        }
+        if (data.photoURL !== undefined) {
+          await firebaseUpdateProfile(firebaseUser, { photoURL: data.photoURL });
+        }
+
+        // Update Firestore profile
+        await updateUserProfile(user.uid, data);
+
+        // Refresh local state
+        await refreshUser();
+        return { ok: true };
+      } catch {
+        return { ok: false, error: 'Failed to update profile.' };
       }
-      const updated: User = {
-        ...user,
-        ...data,
-        email: data.email ? data.email.toLowerCase() : user.email,
-      };
-      saveUsers(users.map((u) => (u.id === user.id ? updated : u)));
-      setUser(updated);
-      return { ok: true };
     },
-    [user]
+    [firebaseUser, user, refreshUser]
   );
 
   const changePassword = useCallback(
     async (current: string, next: string) => {
-      if (!user) return { ok: false, error: 'Not authenticated.' };
-      if (user.password !== current) return { ok: false, error: 'Current password is incorrect.' };
-      const updated = { ...user, password: next };
-      saveUsers(getUsers().map((u) => (u.id === user.id ? updated : u)));
-      setUser(updated);
-      return { ok: true };
+      if (!firebaseUser || !user) return { ok: false, error: 'Not authenticated.' };
+      try {
+        // Re-authenticate before password change (Firebase requirement)
+        const credential = EmailAuthProvider.credential(firebaseUser.email!, current);
+        await reauthenticateWithCredential(firebaseUser, credential);
+        await updatePassword(firebaseUser, next);
+        return { ok: true };
+      } catch (err: any) {
+        if (err?.code === 'auth/wrong-password') {
+          return { ok: false, error: 'Current password is incorrect.' };
+        }
+        return { ok: false, error: 'Failed to update password. Please re-login and try again.' };
+      }
     },
-    [user]
+    [firebaseUser, user]
   );
 
   const submitInquiry = useCallback(
@@ -133,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: generateId('inq'),
         timestamp: new Date().toISOString(),
         status: 'new',
-        userId: user?.id,
+        userId: user?.uid,
       };
       saveInquiries([inquiry, ...inquiries]);
       return { ok: true };
@@ -141,9 +212,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user]
   );
 
+  const resendVerification = useCallback(async () => {
+    if (!firebaseUser) return { ok: false, error: 'Not authenticated.' };
+    try {
+      await sendEmailVerification(firebaseUser);
+      return { ok: true };
+    } catch {
+      return { ok: false, error: 'Failed to send verification email. Please try again later.' };
+    }
+  }, [firebaseUser]);
+
   const value = useMemo(
     () => ({
       user,
+      firebaseUser,
       loading,
       login,
       register,
@@ -151,9 +233,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       changePassword,
       submitInquiry,
+      resendVerification,
       refreshUser,
     }),
-    [user, loading, login, register, logout, updateProfile, changePassword, submitInquiry, refreshUser]
+    [user, firebaseUser, loading, login, register, logout, updateProfile, changePassword, submitInquiry, resendVerification, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

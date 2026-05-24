@@ -3,19 +3,24 @@
 import { useEffect, useState } from 'react';
 import DashboardShell from '@/components/layout/DashboardShell';
 import StatCard from '@/components/dashboard/StatCard';
-import { getInquiries, getServices, getUsers } from '@/lib/storage';
+import { getInquiries, getServices } from '@/lib/storage';
+import { getAllUserProfiles } from '@/lib/firestore';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({ users: 0, inquiries: 0, newInquiries: 0, services: 0 });
 
   useEffect(() => {
-    const inquiries = getInquiries();
-    setStats({
-      users: getUsers().length,
-      inquiries: inquiries.length,
-      newInquiries: inquiries.filter((i) => i.status === 'new').length,
-      services: getServices().length,
-    });
+    async function loadStats() {
+      const inquiries = getInquiries();
+      const userProfiles = await getAllUserProfiles();
+      setStats({
+        users: userProfiles.length,
+        inquiries: inquiries.length,
+        newInquiries: inquiries.filter((i) => i.status === 'new').length,
+        services: getServices().length,
+      });
+    }
+    loadStats();
   }, []);
 
   return (
@@ -34,7 +39,7 @@ export default function AdminDashboardPage() {
         <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white/90 p-6 dark:border-slate-600/50 dark:bg-slate-900/90">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Analytics (Optional)</h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Platform engagement metrics will appear here once backend analytics APIs are connected. Current counts reflect live local data from registrations and contact submissions.
+            Platform engagement metrics will appear here once backend analytics APIs are connected. Current counts reflect live data from Firebase and local storage.
           </p>
         </div>
       </div>
