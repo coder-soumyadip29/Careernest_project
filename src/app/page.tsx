@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import OpeningPage from '@/components/OpeningPage';
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
+import DesignProHero from '@/components/DesignProHero';
 import CinematicScroll from '@/components/CinematicScroll';
 import AboutSection from '@/components/sections/AboutSection';
 import ServicesPreview from '@/components/sections/ServicesPreview';
@@ -30,9 +29,8 @@ export default function Page() {
           transition={{ duration: 0.6 }}
           className="relative min-h-screen flex flex-col"
         >
-          <Navbar />
           <main className="flex-grow">
-            <Hero />
+            <DesignProHero />
             <CinematicScroll />
             <AboutSection />
             <ServicesPreview />
