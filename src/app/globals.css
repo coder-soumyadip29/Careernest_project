@@ -18,6 +18,13 @@
   --bg-gradient-end: rgba(99, 102, 241, 0.08);
   --font-sans: 'Inter', 'Outfit', system-ui, sans-serif;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+
+  /* Dashboard design tokens */
+  --color-dash-surface: rgba(255, 255, 255, 0.04);
+  --color-dash-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-dash-border: rgba(255, 255, 255, 0.08);
+  --color-dash-active: rgba(56, 189, 248, 0.15);
 }
 
 html.light {
@@ -114,4 +121,15 @@ html.dark ::-webkit-scrollbar-thumb {
 
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(56, 189, 248, 0.7);
+}
+
+/* Dashboard Skeleton Shimmer */
+@keyframes shimmer {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.4; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
 }
