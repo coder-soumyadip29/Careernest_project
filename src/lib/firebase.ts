@@ -1,6 +1,6 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,9 +12,30 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Singleton: reuse existing app if already initialized (important for HMR in dev)
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Check if Firebase config is valid
+const isFirebaseConfigValid = !!(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId
+);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+
+if (isFirebaseConfigValid) {
+  // Singleton: reuse existing app if already initialized (important for HMR in dev)
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} else {
+  console.warn(
+    'Firebase configuration is missing or invalid. Please set the required environment variables:\n' +
+    '- NEXT_PUBLIC_FIREBASE_API_KEY\n' +
+    '- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN\n' +
+    '- NEXT_PUBLIC_FIREBASE_PROJECT_ID'
+  );
+}
+
+export { auth, db };
 export default app;
