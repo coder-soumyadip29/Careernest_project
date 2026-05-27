@@ -21,7 +21,7 @@ import {
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { createUserProfile, getUserProfile, updateUserProfile } from '@/lib/firestore';
+import { createUserProfile, getUserProfile, updateUserProfile, addInquiry } from '@/lib/firestore';
 import type { Inquiry, UserProfile } from '@/lib/types';
 import { getInquiries, saveInquiries, generateId, seedDatabase } from '@/lib/storage';
 
@@ -198,16 +198,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const submitInquiry = useCallback(
     async (data: Omit<Inquiry, 'id' | 'timestamp' | 'status'>) => {
-      const inquiries = getInquiries();
-      const inquiry: Inquiry = {
-        ...data,
-        id: generateId('inq'),
-        timestamp: new Date().toISOString(),
-        status: 'new',
-        userId: user?.uid,
-      };
-      saveInquiries([inquiry, ...inquiries]);
-      return { ok: true };
+      try {
+        await addInquiry({
+          ...data,
+          userId: user?.uid,
+        });
+        return { ok: true };
+      } catch (err) {
+        console.error('Error submitting inquiry to Firestore:', err);
+        return { ok: false };
+      }
     },
     [user]
   );

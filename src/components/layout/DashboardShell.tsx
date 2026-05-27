@@ -47,10 +47,10 @@ const userLinks: NavLink[] = [
 ];
 
 const adminLinks: NavLink[] = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Manage Users', icon: Users },
+  { href: '/admin/services', label: 'Manage Services', icon: Briefcase },
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
-  { href: '/admin/content', label: 'Manage Content', icon: FileText },
+  { href: '/admin', label: 'Analytics', icon: LayoutDashboard },
 ];
 
 /* ─── Breadcrumb helper ────────────────────────────────────── */
@@ -167,7 +167,7 @@ export default function DashboardShell({ children, variant }: DashboardShellProp
       router.replace('/login');
       return;
     }
-    if (variant === 'admin' && user.role !== 'admin') router.replace('/dashboard');
+    if (variant === 'admin' && user.role !== 'admin') router.replace('/');
     if (variant === 'user' && user.role === 'admin') router.replace('/admin');
   }, [user, loading, variant, router]);
 
