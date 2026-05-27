@@ -23,7 +23,6 @@ import {
 import { auth } from '@/lib/firebase';
 import { createUserProfile, getUserProfile, updateUserProfile, addInquiry } from '@/lib/firestore';
 import type { Inquiry, UserProfile } from '@/lib/types';
-import { getInquiries, saveInquiries, generateId, seedDatabase } from '@/lib/storage';
 
 interface AuthContextValue {
   /** The Firestore user profile (null if logged out or loading) */
@@ -52,17 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Seed non-auth localStorage data
-  useEffect(() => {
-    seedDatabase();
-  }, []);
-
   // Listen to Firebase Auth state changes
   useEffect(() => {
-    if (!auth) {
-      setLoading(false);
-      return;
-    }
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
@@ -84,7 +74,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async () => {
-    if (!auth) return;
     const fbUser = auth.currentUser;
     if (!fbUser) {
       setUser(null);
@@ -98,7 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
-    if (!auth) return { ok: false, error: 'Firebase is not configured.' };
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const fbUser = credential.user;
@@ -124,14 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { ok: true };
     } catch (err: any) {
       const code = err?.code ?? '';
-      // Import dynamically to keep this callback lean
       const { getFirebaseErrorMessage } = await import('@/lib/validations');
       return { ok: false, error: getFirebaseErrorMessage(code) };
     }
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    if (!auth) return { ok: false, error: 'Firebase is not configured.' };
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       const fbUser = credential.user;
@@ -154,7 +140,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    if (!auth) return;
     await signOut(auth);
     setUser(null);
     setFirebaseUser(null);
