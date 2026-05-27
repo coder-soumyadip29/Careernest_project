@@ -59,6 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen to Firebase Auth state changes
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
@@ -80,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async () => {
+    if (!auth) return;
     const fbUser = auth.currentUser;
     if (!fbUser) {
       setUser(null);
@@ -93,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
+    if (!auth) return { ok: false, error: 'Firebase is not configured.' };
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const fbUser = credential.user;
@@ -125,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
+    if (!auth) return { ok: false, error: 'Firebase is not configured.' };
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       const fbUser = credential.user;
@@ -147,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    if (!auth) return;
     await signOut(auth);
     setUser(null);
     setFirebaseUser(null);

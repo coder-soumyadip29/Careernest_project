@@ -18,6 +18,11 @@ const USERS_COLLECTION = 'Users';
 const SERVICES_COLLECTION = 'Services';
 const INQUIRIES_COLLECTION = 'Inquiries';
 
+function ensureDb() {
+  if (!db) throw new Error('Firebase Firestore is not configured.');
+  return db;
+}
+
 /**
  * Create a new user profile document in Firestore.
  * Document ID = Firebase Auth UID (guarantees 1:1 mapping).
@@ -30,7 +35,8 @@ export async function createUserProfile(
     role?: 'user' | 'admin';
   }
 ): Promise<void> {
-  const userDoc = doc(db, USERS_COLLECTION, uid);
+  const firestore = ensureDb();
+  const userDoc = doc(firestore, USERS_COLLECTION, uid);
   await setDoc(userDoc, {
     uid,
     name: data.name,
@@ -47,7 +53,8 @@ export async function createUserProfile(
  * Fetch a single user profile by UID.
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const userDoc = doc(db, USERS_COLLECTION, uid);
+  const firestore = ensureDb();
+  const userDoc = doc(firestore, USERS_COLLECTION, uid);
   const snap = await getDoc(userDoc);
   if (!snap.exists()) return null;
   return snap.data() as UserProfile;
@@ -57,7 +64,8 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  * Fetch all user profiles (admin use-case).
  */
 export async function getAllUserProfiles(): Promise<UserProfile[]> {
-  const snap = await getDocs(collection(db, USERS_COLLECTION));
+  const firestore = ensureDb();
+  const snap = await getDocs(collection(firestore, USERS_COLLECTION));
   return snap.docs.map((d) => d.data() as UserProfile);
 }
 
@@ -68,7 +76,8 @@ export async function updateUserProfile(
   uid: string,
   data: Partial<Omit<UserProfile, 'uid' | 'createdAt'>>
 ): Promise<void> {
-  const userDoc = doc(db, USERS_COLLECTION, uid);
+  const firestore = ensureDb();
+  const userDoc = doc(firestore, USERS_COLLECTION, uid);
   await updateDoc(userDoc, { ...data });
 }
 
@@ -76,7 +85,8 @@ export async function updateUserProfile(
  * Delete a user profile in Firestore.
  */
 export async function deleteUserProfile(uid: string): Promise<void> {
-  const userDoc = doc(db, USERS_COLLECTION, uid);
+  const firestore = ensureDb();
+  const userDoc = doc(firestore, USERS_COLLECTION, uid);
   await deleteDoc(userDoc);
 }
 
@@ -86,14 +96,15 @@ export async function deleteUserProfile(uid: string): Promise<void> {
  * Fetch all services from Firestore. If empty, automatically seeds default services.
  */
 export async function getAllServices(): Promise<ServiceItem[]> {
-  const snap = await getDocs(collection(db, SERVICES_COLLECTION));
+  const firestore = ensureDb();
+  const snap = await getDocs(collection(firestore, SERVICES_COLLECTION));
   if (snap.empty) {
     // Seed default services in Firestore
     for (const service of defaultServices) {
       const { id, ...rest } = service;
-      await setDoc(doc(db, SERVICES_COLLECTION, id), rest);
+      await setDoc(doc(firestore, SERVICES_COLLECTION, id), rest);
     }
-    const freshSnap = await getDocs(collection(db, SERVICES_COLLECTION));
+    const freshSnap = await getDocs(collection(firestore, SERVICES_COLLECTION));
     return freshSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as ServiceItem);
   }
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ServiceItem);
@@ -103,8 +114,9 @@ export async function getAllServices(): Promise<ServiceItem[]> {
  * Add a new service offering to Firestore.
  */
 export async function addService(data: Omit<ServiceItem, 'id'>): Promise<string> {
+  const firestore = ensureDb();
   const serviceId = `svc-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const serviceDoc = doc(db, SERVICES_COLLECTION, serviceId);
+  const serviceDoc = doc(firestore, SERVICES_COLLECTION, serviceId);
   await setDoc(serviceDoc, data);
   return serviceId;
 }
@@ -113,7 +125,8 @@ export async function addService(data: Omit<ServiceItem, 'id'>): Promise<string>
  * Update a service offering in Firestore.
  */
 export async function updateService(id: string, data: Partial<Omit<ServiceItem, 'id'>>): Promise<void> {
-  const serviceDoc = doc(db, SERVICES_COLLECTION, id);
+  const firestore = ensureDb();
+  const serviceDoc = doc(firestore, SERVICES_COLLECTION, id);
   await updateDoc(serviceDoc, data);
 }
 
@@ -121,7 +134,8 @@ export async function updateService(id: string, data: Partial<Omit<ServiceItem, 
  * Delete a service offering from Firestore.
  */
 export async function deleteService(id: string): Promise<void> {
-  const serviceDoc = doc(db, SERVICES_COLLECTION, id);
+  const firestore = ensureDb();
+  const serviceDoc = doc(firestore, SERVICES_COLLECTION, id);
   await deleteDoc(serviceDoc);
 }
 
@@ -131,7 +145,8 @@ export async function deleteService(id: string): Promise<void> {
  * Fetch all inquiries from Firestore (ordered by newest first).
  */
 export async function getAllInquiries(): Promise<Inquiry[]> {
-  const q = query(collection(db, INQUIRIES_COLLECTION), orderBy('timestamp', 'desc'));
+  const firestore = ensureDb();
+  const q = query(collection(firestore, INQUIRIES_COLLECTION), orderBy('timestamp', 'desc'));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Inquiry);
 }
@@ -142,8 +157,9 @@ export async function getAllInquiries(): Promise<Inquiry[]> {
 export async function addInquiry(
   data: Omit<Inquiry, 'id' | 'timestamp' | 'status'>
 ): Promise<string> {
+  const firestore = ensureDb();
   const inquiryId = `inq-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const inquiryDoc = doc(db, INQUIRIES_COLLECTION, inquiryId);
+  const inquiryDoc = doc(firestore, INQUIRIES_COLLECTION, inquiryId);
   const inquiryData = {
     ...data,
     timestamp: new Date().toISOString(),
@@ -157,7 +173,8 @@ export async function addInquiry(
  * Update inquiry status (e.g. mark reviewed).
  */
 export async function updateInquiryStatus(id: string, status: 'new' | 'reviewed'): Promise<void> {
-  const inquiryDoc = doc(db, INQUIRIES_COLLECTION, id);
+  const firestore = ensureDb();
+  const inquiryDoc = doc(firestore, INQUIRIES_COLLECTION, id);
   await updateDoc(inquiryDoc, { status });
 }
 
@@ -165,7 +182,8 @@ export async function updateInquiryStatus(id: string, status: 'new' | 'reviewed'
  * Delete an inquiry from Firestore.
  */
 export async function deleteInquiry(id: string): Promise<void> {
-  const inquiryDoc = doc(db, INQUIRIES_COLLECTION, id);
+  const firestore = ensureDb();
+  const inquiryDoc = doc(firestore, INQUIRIES_COLLECTION, id);
   await deleteDoc(inquiryDoc);
 }
 
