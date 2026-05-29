@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAllServices } from '@/lib/firestore';
+import { getServices } from '@/lib/dbService';
 import type { ServiceItem } from '@/lib/types';
 
 interface UseServicesReturn {
@@ -20,7 +20,7 @@ interface UseServicesReturn {
  *
  * - Handles loading / error / data states cleanly.
  * - Auto-seeds default services on first load if the collection is empty
- *   (handled inside `getAllServices`).
+ *   (handled inside `getServices`).
  * - Exposes a `refresh` callback for imperative re-fetches.
  */
 export function useServices(): UseServicesReturn {
@@ -32,10 +32,15 @@ export function useServices(): UseServicesReturn {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAllServices();
-      setServices(data);
+      const result = await getServices();
+      if (result.success) {
+        setServices(result.data);
+      } else {
+        console.error('[useServices] Failed to fetch:', result.error);
+        setError('Unable to load services. Please try again later.');
+      }
     } catch (err) {
-      console.error('[useServices] Failed to fetch:', err);
+      console.error('[useServices] Unexpected error:', err);
       setError('Unable to load services. Please try again later.');
     } finally {
       setLoading(false);

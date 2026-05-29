@@ -21,9 +21,10 @@ import {
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { createUserProfile, getUserProfile, updateUserProfile, addInquiry } from '@/lib/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { createUserProfile, getUserProfile, submitInquiry as submitInquiryToDb } from '@/lib/dbService';
 import type { Inquiry, UserProfile } from '@/lib/types';
-import { getInquiries, saveInquiries, generateId, seedDatabase } from '@/lib/storage';
 
 interface AuthContextValue {
   /** The Firestore user profile (null if logged out or loading) */
@@ -52,9 +53,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Seed non-auth localStorage data
+  // Seed non-auth localStorage data (removed per Q5)
   useEffect(() => {
-    seedDatabase();
+    // No-op: We're fully Firestore now
   }, []);
 
   // Listen to Firebase Auth state changes
@@ -64,8 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setFirebaseUser(fbUser);
         // Fetch Firestore profile
         try {
-          const profile = await getUserProfile(fbUser.uid);
-          setUser(profile);
+          const result = await getUserProfile(fbUser.uid);
+          setUser(result.success ? result.data : null);
         } catch {
           setUser(null);
         }
@@ -88,8 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     await fbUser.reload();
     setFirebaseUser({ ...fbUser });
-    const profile = await getUserProfile(fbUser.uid);
-    setUser(profile);
+    const result = await getUserProfile(fbUser.uid);
+    setUser(result.success ? result.data : null);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
@@ -111,8 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       // Fetch and set the profile
-      const profile = await getUserProfile(fbUser.uid);
-      setUser(profile);
+      const result = await getUserProfile(fbUser.uid);
+      setUser(result.success ? result.data : null);
       setFirebaseUser(fbUser);
 
       return { ok: true };
@@ -131,7 +132,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setFirebaseUser(fbUser);
 
       // Fetch Firestore profile to get role
-      const profile = await getUserProfile(fbUser.uid);
+      const result = await getUserProfile(fbUser.uid);
+      const profile = result.success ? result.data : null;
       setUser(profile);
 
       return {
@@ -164,8 +166,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await firebaseUpdateProfile(firebaseUser, { photoURL: data.photoURL });
         }
 
-        // Update Firestore profile
-        await updateUserProfile(user.uid, data);
+        // Update Firestore profile (inlined since it's not in dbService spec)
+        const userDoc = doc(db, 'Users', user.uid);
+        await updateDoc(userDoc, data);
 
         // Refresh local state
         await refreshUser();
@@ -199,11 +202,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const submitInquiry = useCallback(
     async (data: Omit<Inquiry, 'id' | 'timestamp' | 'status'>) => {
       try {
-        await addInquiry({
+        const result = await submitInquiryToDb({
           ...data,
           userId: user?.uid,
         });
-        return { ok: true };
+        return { ok: result.success };
       } catch (err) {
         console.error('Error submitting inquiry to Firestore:', err);
         return { ok: false };

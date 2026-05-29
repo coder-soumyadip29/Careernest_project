@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Search, Trash2, Shield, User, ArrowUpDown, AlertTriangle, X } from 'lucide-react';
-import { getAllUserProfiles, updateUserProfile, deleteUserProfile } from '@/lib/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import type { UserProfile } from '@/lib/types';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
@@ -23,7 +24,8 @@ export default function UsersTable() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const data = await getAllUserProfiles();
+      const snap = await getDocs(collection(db, 'Users'));
+      const data = snap.docs.map((d) => d.data() as UserProfile);
       setUsers(data);
     } catch (err) {
       console.error('Failed to load users:', err);
@@ -67,7 +69,8 @@ export default function UsersTable() {
   const handleUpdateRole = async (userToUpdate: UserProfile, newRole: 'user' | 'admin') => {
     setActionLoading(true);
     try {
-      await updateUserProfile(userToUpdate.uid, { role: newRole });
+      const userDoc = doc(db, 'Users', userToUpdate.uid);
+      await updateDoc(userDoc, { role: newRole });
       if (userToUpdate.uid === currentUser?.uid) {
         await refreshUser();
       }
@@ -84,7 +87,8 @@ export default function UsersTable() {
     if (!deletingUser) return;
     setActionLoading(true);
     try {
-      await deleteUserProfile(deletingUser.uid);
+      const userDoc = doc(db, 'Users', deletingUser.uid);
+      await deleteDoc(userDoc);
       setDeletingUser(null);
       await loadUsers();
     } catch (err) {

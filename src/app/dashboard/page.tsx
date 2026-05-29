@@ -17,7 +17,8 @@ import DashboardShell from '@/components/layout/DashboardShell';
 import StatCard from '@/components/dashboard/StatCard';
 import { useUserData } from '@/hooks/useUserData';
 import { useAuth } from '@/context/AuthContext';
-import { getInquiries } from '@/lib/storage';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 /* ─── Greeting helper ──────────────────────────────────────── */
 
@@ -82,8 +83,23 @@ export default function UserDashboardPage() {
   const [inquiryCount, setInquiryCount] = useState(0);
 
   useEffect(() => {
-    const all = getInquiries();
-    setInquiryCount(all.filter((i) => i.userId === user?.uid || i.email === user?.email).length);
+    async function loadUserInquiries() {
+      if (!user?.uid) {
+        setInquiryCount(0);
+        return;
+      }
+      try {
+        const q = query(
+          collection(db, 'Inquiries'),
+          where('userId', '==', user.uid)
+        );
+        const snap = await getDocs(q);
+        setInquiryCount(snap.docs.length);
+      } catch (err) {
+        console.error('Failed to load user inquiries count', err);
+      }
+    }
+    loadUserInquiries();
   }, [user]);
 
   const accountStatus = emailVerified ? 'Verified' : 'Active';

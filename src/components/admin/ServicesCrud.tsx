@@ -6,7 +6,7 @@ import {
   Plus, Pencil, Trash2, Zap, Briefcase, GraduationCap, Award, TrendingUp, Globe, X, 
   Layers, AlertCircle 
 } from 'lucide-react';
-import { getAllServices, addService, updateService, deleteService } from '@/lib/firestore';
+import { getServices, addService, updateService, deleteService } from '@/lib/dbService';
 import type { ServiceItem } from '@/lib/types';
 import FormField, { inputClassName } from '@/components/ui/FormField';
 
@@ -41,8 +41,12 @@ export default function ServicesCrud() {
   const loadServices = async () => {
     setLoading(true);
     try {
-      const data = await getAllServices();
-      setServices(data);
+      const result = await getServices();
+      if (result.success) {
+        setServices(result.data);
+      } else {
+        console.error('Failed to load services:', result.error);
+      }
     } catch (err) {
       console.error('Failed to load services:', err);
     } finally {
@@ -105,11 +109,18 @@ export default function ServicesCrud() {
     };
 
     try {
+      let result;
       if (isNew) {
-        await addService(serviceData);
+        result = await addService(serviceData);
       } else if (editingService) {
-        await updateService(editingService.id, serviceData);
+        result = await updateService(editingService.id, serviceData);
       }
+      
+      if (result && !result.success) {
+        setValidationError(result.error);
+        return;
+      }
+
       setEditingService(null);
       await loadServices();
     } catch (err) {
@@ -124,7 +135,11 @@ export default function ServicesCrud() {
     if (!deletingId) return;
     setActionLoading(true);
     try {
-      await deleteService(deletingId);
+      const result = await deleteService(deletingId);
+      if (!result.success) {
+        console.error('Failed to delete service:', result.error);
+        return;
+      }
       setDeletingId(null);
       await loadServices();
     } catch (err) {

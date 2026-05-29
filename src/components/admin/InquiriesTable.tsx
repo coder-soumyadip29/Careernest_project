@@ -5,7 +5,9 @@ import {
   Search, MessageSquare, Check, Trash2, Calendar, Mail, Phone, 
   ChevronDown, ChevronUp, AlertCircle 
 } from 'lucide-react';
-import { getAllInquiries, updateInquiryStatus, deleteInquiry } from '@/lib/firestore';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { getAllInquiries } from '@/lib/dbService';
 import type { Inquiry } from '@/lib/types';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 
@@ -25,8 +27,12 @@ export default function InquiriesTable() {
   const loadInquiries = async () => {
     setLoading(true);
     try {
-      const data = await getAllInquiries();
-      setInquiries(data);
+      const result = await getAllInquiries();
+      if (result.success) {
+        setInquiries(result.data);
+      } else {
+        console.error('Failed to load inquiries:', result.error);
+      }
     } catch (err) {
       console.error('Failed to load inquiries:', err);
     } finally {
@@ -41,7 +47,8 @@ export default function InquiriesTable() {
   const handleMarkReviewed = async (id: string) => {
     setActionLoading(true);
     try {
-      await updateInquiryStatus(id, 'reviewed');
+      const inquiryDoc = doc(db, 'Inquiries', id);
+      await updateDoc(inquiryDoc, { status: 'reviewed' });
       await loadInquiries();
     } catch (err) {
       console.error('Failed to mark inquiry as reviewed:', err);
@@ -54,7 +61,8 @@ export default function InquiriesTable() {
     if (!deletingId) return;
     setActionLoading(true);
     try {
-      await deleteInquiry(deletingId);
+      const inquiryDoc = doc(db, 'Inquiries', deletingId);
+      await deleteDoc(inquiryDoc);
       setDeletingId(null);
       await loadInquiries();
     } catch (err) {

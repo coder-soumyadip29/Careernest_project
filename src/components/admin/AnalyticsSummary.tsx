@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Users, MessageSquare, AlertCircle, Sparkles, TrendingUp, Layers, Calendar } from 'lucide-react';
-import { getAllUserProfiles, getAllInquiries, getAllServices } from '@/lib/firestore';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { getAllInquiries, getServices } from '@/lib/dbService';
 import StatCard from '@/components/dashboard/StatCard';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 
@@ -19,13 +21,17 @@ export default function AnalyticsSummary() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [users, inquiries, services] = await Promise.all([
-        getAllUserProfiles(),
+      const [usersSnap, inquiriesResult, servicesResult] = await Promise.all([
+        getDocs(collection(db, 'Users')),
         getAllInquiries(),
-        getAllServices(),
+        getServices(),
       ]);
+      
+      const users = usersSnap.docs.map(d => d.data());
+      const inquiries = inquiriesResult.success ? inquiriesResult.data : [];
+      const services = servicesResult.success ? servicesResult.data : [];
 
-      const admins = users.filter((u) => u.role === 'admin').length;
+      const admins = users.filter((u: any) => u.role === 'admin').length;
       const newInquiries = inquiries.filter((i) => i.status === 'new').length;
 
       setData({
