@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo === CarrierNest - Push to GitHub ===
-echo Repo: https://github.com/coder-soumyadip29/Careernest_project
+echo Repo: https://github.com/coder-soumyadip29/CarrierNest_project.git
 echo.
 
 where git >nul 2>&1
@@ -13,7 +13,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-git remote set-url origin https://github.com/coder-soumyadip29/Careernest_project.git
+git remote set-url origin https://github.com/coder-soumyadip29/CarrierNest_project.git
 
 echo.
 echo [1/4] Status before commit...
