@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Check, X, Eye, EyeOff } from 'lucide-react';
 import FormField, { inputClassName } from '@/components/ui/FormField';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import { useAuth } from '@/context/AuthContext';
 import {
   validateName,
@@ -16,7 +17,7 @@ import {
 } from '@/lib/validations';
 
 export default function SignupForm() {
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -61,6 +62,17 @@ export default function SignupForm() {
     router.push('/verify-email');
   };
 
+  const handleGoogleSignUp = async () => {
+    setErrors({});
+    const result = await loginWithGoogle();
+    if (!result.ok) {
+      setErrors({ form: result.error ?? 'Google sign-up failed.' });
+      return;
+    }
+    // Google users are automatically verified, redirect to dashboard
+    router.push('/dashboard');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,7 +84,23 @@ export default function SignupForm() {
       <p className="mt-2 text-sm text-slate-500">
         Join CareerNest to track placements and manage your profile.
       </p>
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+
+      {/* Google Sign-Up Button */}
+      <div className="mt-8">
+        <GoogleSignInButton onClick={handleGoogleSignUp} mode="signup" />
+      </div>
+
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-4 text-slate-500">or sign up with email</span>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Name */}
         <FormField label="Full Name" id="signup-name" error={errors.name}>
           <input

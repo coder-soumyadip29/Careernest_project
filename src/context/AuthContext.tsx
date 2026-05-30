@@ -18,6 +18,8 @@ import {
   updatePassword,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  GoogleAuthProvider,
+  signInWithPopup,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -38,6 +40,7 @@ interface AuthContextValue {
     email: string,
     password: string
   ) => Promise<{ ok: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ ok: boolean; error?: string; role?: UserProfile['role']; isNewUser?: boolean }>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<Pick<UserProfile, 'name' | 'email' | 'photoURL'>>) => Promise<{ ok: boolean; error?: string }>;
   changePassword: (current: string, next: string) => Promise<{ ok: boolean; error?: string }>;
@@ -47,6 +50,8 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+const googleProvider = new GoogleAuthProvider();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -148,6 +153,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      const credential = await signInWithPopup(auth, googleProvider);
+      const fbUser = credential.user;
+      setFirebaseUser(fbUser);
+
+      // Check if user profile exists
+      const existingProfile = await getUserProfile(fbUser.uid);
+      let isNewUser = false;
+
+      if (!existingProfile.success || !existingProfile.data) {
+        // Create new profile for Google user
+        isNewUser = true;
+        await createUserProfile(fbUser.uid, {
+          name: fbUser.displayName || 'User',
+          email: fbUser.email || '',
+          role: 'user',
+          photoURL: fbUser.photoURL || undefined,
+        });
+      }
+
+      // Fetch and set the profile
+      const result = await getUserProfile(fbUser.uid);
+      const profile = result.success ? result.data : null;
+      setUser(profile);
+
+      return {
+        ok: true,
+        role: profile?.role,
+        isNewUser,
+      };
+    } catch (err: any) {
+      const code = err?.code ?? '';
+      if (code === 'auth/popup-closed-by-user') {
+        return { ok: false, error: 'Sign-in cancelled.' };
+      }
+      const { getFirebaseErrorMessage } = await import('@/lib/validations');
+      return { ok: false, error: getFirebaseErrorMessage(code) };
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     await signOut(auth);
     setUser(null);
@@ -232,6 +278,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       login,
       register,
+      loginWithGoogle,
       logout,
       updateProfile,
       changePassword,
@@ -239,7 +286,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       resendVerification,
       refreshUser,
     }),
-    [user, firebaseUser, loading, login, register, logout, updateProfile, changePassword, submitInquiry, resendVerification, refreshUser]
+    [user, firebaseUser, loading, login, register, loginWithGoogle, logout, updateProfile, changePassword, submitInquiry, resendVerification, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -6,10 +6,11 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import FormField, { inputClassName } from '@/components/ui/FormField';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginForm() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,6 +36,16 @@ export default function LoginForm() {
     router.push(result.role === 'admin' ? '/admin' : '/dashboard');
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    const result = await loginWithGoogle();
+    if (!result.ok) {
+      setError(result.error ?? 'Google sign-in failed.');
+      return;
+    }
+    router.push(result.role === 'admin' ? '/admin' : '/dashboard');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -44,7 +55,23 @@ export default function LoginForm() {
     >
       <h1 className="text-2xl font-extrabold text-brand-primary">Welcome back</h1>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Sign in to access your CareerNest dashboard.</p>
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      
+      {/* Google Sign-In Button */}
+      <div className="mt-8">
+        <GoogleSignInButton onClick={handleGoogleSignIn} mode="signin" />
+      </div>
+
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-4 text-slate-500 dark:bg-slate-900 dark:text-slate-400">or continue with email</span>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
         <FormField label="Email" id="login-email">
           <input
             id="login-email"
